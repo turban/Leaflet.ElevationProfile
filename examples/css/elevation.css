@@ -1,0 +1,14 @@
+html, body, #map { 
+	margin: 0; 
+	height: 100%; 
+	background: #fff; 
+}	
+
+#map {
+	height: 70%;
+	border-bottom: 1px solid red;
+}
+
+#elevation-chart {
+	height: 30%;			
+}
