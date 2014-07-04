@@ -8,8 +8,8 @@ $(function () {
         attribution: '&copy; <a href="http://kartverket.no/">Kartverket</a>'
     }).addTo(map);
 
-    //var url = "http://turban.cartodb.com/api/v2/sql?q=SELECT latitude AS lat, longitude AS lng, altitude AS alt, placename AS name, message_type AS type, timestamp AS time FROM spot WHERE feed_id='oslo-bergen-test' ORDER BY timestamp";
-    var url = "data/oslo-bergen-test.json";
+    var url = "http://turban.cartodb.com/api/v2/sql?q=SELECT latitude AS lat, longitude AS lng, altitude AS alt, placename AS name, message_type AS type, timestamp AS time FROM spot WHERE feed_id='oslo-bergen-test' ORDER BY timestamp";
+    //var url = "data/oslo-bergen-test.json";
 
 
     $.getJSON(url, function(data) {

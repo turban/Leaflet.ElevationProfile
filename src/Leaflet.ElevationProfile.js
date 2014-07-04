@@ -33,7 +33,7 @@ L.ElevationProfile = L.Control.extend({
 
 	initialize: function (data, options) {	
 		this._data = data;
-        this._knnData =  sphereKnn(data);
+        this._knnData = sphereKnn(data);
 		L.Util.setOptions(this, options);
 	},
 
@@ -69,6 +69,8 @@ L.ElevationProfile = L.Control.extend({
 			distance = 0,
 			prevPoint;
 
+        this._plotLines = [];
+
         for (var i = 0, len = data.length; i < len; i++) {
             var item = data[i],
                 point = L.latLng(data[i]);
@@ -80,6 +82,21 @@ L.ElevationProfile = L.Control.extend({
             item.x = distance;
             points.push([distance, item.alt]);
 			prevPoint = point;
+
+            if (item.type === 'OK') {
+                //console.log("distance", distance);
+                this._plotLines.push({
+                    value: distance,
+                    width: 1,
+                    color: '#333',
+                    dashStyle: 'Dot',
+                    label: {
+                        text: item.name || ''
+                    },
+                    zIndex: 5
+                });
+            }
+
 		}
 
         // Add last point
@@ -133,6 +150,9 @@ L.ElevationProfile = L.Control.extend({
 			        theme: {
 			            display: 'none'
 			        }                	
+                },
+                animation: {
+                    //duration: 500
                 }
             },
             title: {
@@ -154,19 +174,32 @@ L.ElevationProfile = L.Control.extend({
                 minPadding: 0,
                 maxPadding: 0,
                 labels: {
-                    format: '{value} km'
-                }                
+                    formatter: function () {
+                        return Math.round(this.value / 1000) + ' km';
+                    }
+                },
+                plotLines: this._plotLines                
             },
             yAxis: [{
                 title: {
                     text: null
                 },
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    }
+                },                
                 min: 0//,
                 //max: 200
             }, {
                 title: {
                     text: null
                 },
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    }
+                },                   
                 opposite: true,
                 linkedTo: 0
             }],
@@ -268,7 +301,7 @@ L.ElevationProfile = L.Control.extend({
         if (xAxis) {
         	this._zoomMap(xAxis[0].min, xAxis[0].max);
         }
-        //return false; // Don't zoom chart, as it will be triggerd by map move
+        return false; // Don't zoom chart, as it will be triggerd by map move
 	},
 
 	_onChartClick: function (data) {
@@ -289,7 +322,11 @@ L.ElevationProfile = L.Control.extend({
         this.options.marker.setLatLng(point).addTo(map);
 
         if (!map.getBounds().contains(L.latLng(point))) {
-            map.setView(point, this._map.getZoom());
+            map.panTo(point, {
+                animate: true,
+                duration: 1
+            });
+            //this._zoomChart(); // TODO: reduce speed
         }
 	},
 
@@ -329,9 +366,9 @@ L.ElevationProfile = L.Control.extend({
 
         if (point.name) tooltip += point.name;
         if (data.y) tooltip += ' ' + data.y + ' moh.';
-        if (tooltip) tooltip += '<br>'; 
-        tooltip +=  Math.round(data.x / 1000) + ' km';
-		if (options.start) tooltip += ' fra ' + (options.start.name || 'start');  
+        //if (tooltip) tooltip += '<br>'; 
+        //tooltip +=  Math.round(data.x / 1000) + ' km';
+		//if (options.start) tooltip += ' fra ' + (options.start.name || 'start');  
 		return tooltip;
 	},
 
